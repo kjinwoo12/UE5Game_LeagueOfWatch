@@ -3,11 +3,11 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class LeagueOfWatchEditorTarget : TargetRules
+public class LeagueOfWatchServerTarget : TargetRules
 {
-	public LeagueOfWatchEditorTarget( TargetInfo Target) : base(Target)
+	public LeagueOfWatchServerTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Editor;
+		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		ExtraModuleNames.Add("LeagueOfWatch");
 	}
