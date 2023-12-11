@@ -23,3 +23,8 @@ bool AGameModeCharacterSelection::IsGameFullOfPlayers()
     }
     return false;
 }
+
+void AGameModeCharacterSelection::Shutdown(FString Reason)
+{
+    RequestEngineExit(TEXT("AGameModeCharacterSelection::Shutdown" + Reason));
+}

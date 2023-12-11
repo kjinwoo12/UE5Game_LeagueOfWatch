@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameModeCharacterSelection.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LEAGUEOFWATCH_API AGameModeCharacterSelection : public AGameMode
+class LEAGUEOFWATCH_API AGameModeCharacterSelection : public AGameModeBase
 {
 	GENERATED_BODY()
 	
@@ -26,12 +26,15 @@ class LEAGUEOFWATCH_API AGameModeCharacterSelection : public AGameMode
 
 
 public:
-    // MaxPlayer Range 0 ~ 255, Default 2.
+    // Default 2.
     UPROPERTY(BlueprintReadWrite)
     int MaxPlayer = 2; 
 
     // CurrentPlayer Num >= MaxPlayer
-    // It follows variable "unit8 MaxPlayer"
+    // It follows variable "int MaxPlayer"
 	UFUNCTION(BlueprintCallable, BlueprintPure)
     bool IsGameFullOfPlayers();
+
+    UFUNCTION(BlueprintCallable)
+    void Shutdown(FString Reason);
 };
