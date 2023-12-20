@@ -3,17 +3,17 @@
 
 #include "Characters/CombatFormulaFunctionLibrary.h"
 
-float UCombatFormulaFunctionLibrary::ArmoredDamageFormula(float OriginalDamage, float Armor)
+float UCombatFormulaFunctionLibrary::ArmoredDamageFormula(float originalDamage, float armor)
 {
-    float resultDamage = OriginalDamage;
+    float resultDamage = originalDamage;
 
-    if (Armor >= 0)
+    if (armor >= 0)
     {
-        OriginalDamage /= 1 + Armor * 0.01;
+        originalDamage /= 1 + armor * 0.01;
     }
     else
     {
-        OriginalDamage /= 2 - 1 / (1 - Armor * 0.01);
+        originalDamage /= 2 - 1 / (1 - armor * 0.01);
     }
 
     return resultDamage;

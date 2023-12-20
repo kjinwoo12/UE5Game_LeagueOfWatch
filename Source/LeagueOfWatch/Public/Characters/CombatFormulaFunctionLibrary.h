@@ -15,5 +15,5 @@ class LEAGUEOFWATCH_API UCombatFormulaFunctionLibrary : public UBlueprintFunctio
 	GENERATED_BODY()
 	
 	UFUNCTION(BlueprintCallable, Category="CombatFormula")
-	static float ArmoredDamageFormula(float OriginalDamage, float Armor);
+	static float ArmoredDamageFormula(float originalDamage, float armor);
 };
