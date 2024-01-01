@@ -18,27 +18,42 @@ class LEAGUEOFWATCH_API AMultiplayPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-	AMultiplayGameMode* MultiplayGameMode;
-	AMultiplayGameState* MultiplayGameState;
-    AMultiplayPlayerState* MultiplayPlayerState;
-    int PlayerStateNum = 0;
+public:
+	UPROPERTY(BlueprintReadWrite)
+	int PlayerStateNum = 0;
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	AMultiplayGameState* SyncedGameState;
+	UPROPERTY(BlueprintReadWrite)
+    AMultiplayPlayerState* SyncedPlayerState;
 
 	void BeginPlay() override;
 
-public:
-    virtual void OnGameStateBegin(AMultiplayGameState* MultiplayGameState);
+    void OnGameStateBegin(AMultiplayGameState* MultiplayGameState);
+	UFUNCTION(BlueprintNativeEvent)
+	void GameStateBegin(AMultiplayGameState* MultiplayGameState);
 
-	virtual void OnLocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	void OnLocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	UFUNCTION(BlueprintNativeEvent)
+	void LocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
 
-	virtual void OnOtherPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	void OnOtherPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	UFUNCTION(BlueprintNativeEvent)
+	void OtherPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
 
-	virtual void OnPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	void OnPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPCReadyForServer();
+	void ServerRPCPlayerReady();
 
 	void OnAllPlayersReady();
 
 	UFUNCTION(Client, Reliable)
 	void ClientRPCOnAllPlayersReady();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void AllPlayersReady();
 };

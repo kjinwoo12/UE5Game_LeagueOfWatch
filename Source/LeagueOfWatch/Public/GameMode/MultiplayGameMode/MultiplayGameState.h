@@ -14,5 +14,10 @@ class LEAGUEOFWATCH_API AMultiplayGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
+public:
+	// Default 2.
+	UPROPERTY(BlueprintReadWrite)
+	int PlayerSlotNum=2;
+
 	void BeginPlay() override;
 };

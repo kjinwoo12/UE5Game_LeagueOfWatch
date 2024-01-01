@@ -14,25 +14,66 @@ AMultiplayGameMode::AMultiplayGameMode()
     PlayerStateClass = AMultiplayPlayerState::StaticClass();
 }
 
-void AMultiplayGameMode::BeginPlay()
+void AMultiplayGameMode::PreLogin(const FString& Options,
+                                           const FString& Address,
+                                           const FUniqueNetIdRepl& UniqueId,
+                                           FString& ErrorMessage)
 {
-
+    if (IsGameFullOfPlayers())
+    {
+        ErrorMessage = "The Game is full of players.";
+        return;
+    }
 }
 
 void AMultiplayGameMode::OnPlayerReady(AMultiplayPlayerController* MultiplayPlayerController)
 {
 	ReadyPlayers.Add(MultiplayPlayerController);
+	PlayerReady(MultiplayPlayerController);
 
-    if(ReadyPlayers.Num() == GameState->PlayerArray.Num())
+    if (IsAllPlayersReady())
     {
-		OnAllPlayerReady();
+		OnAllPlayersReady();
     }
 }
 
-void AMultiplayGameMode::OnAllPlayerReady()
+void AMultiplayGameMode::PlayerReady_Implementation(AMultiplayPlayerController* MultiplayPlayerController)
 {
+}
+
+void AMultiplayGameMode::OnAllPlayersReady()
+{
+	AllPlayersReady();
+
     for(AMultiplayPlayerController* ReadyPlayer : ReadyPlayers)
     {
 		ReadyPlayer->OnAllPlayersReady();
     }
+}
+
+void AMultiplayGameMode::AllPlayersReady_Implementation()
+{
+}
+
+void AMultiplayGameMode::Logout(AController * Exiting)
+{
+    AMultiplayPlayerController* multiplayPlayerController = Cast<AMultiplayPlayerController>(Exiting);
+    if(IsValid(multiplayPlayerController))
+    {
+        ReadyPlayers.Remove(multiplayPlayerController);
+    }
+
+    Super::Logout(Exiting);
+}
+
+bool AMultiplayGameMode::IsGameFullOfPlayers()
+{
+    AMultiplayGameState* multiplayGameState = GetGameState<AMultiplayGameState>();
+    return GetNumPlayers() >= multiplayGameState->PlayerSlotNum;
+}
+
+bool AMultiplayGameMode::IsAllPlayersReady()
+{
+    AMultiplayGameState* multiplayGameState = GetGameState<AMultiplayGameState>();
+	return ReadyPlayers.Num() >= multiplayGameState->PlayerSlotNum;
 }

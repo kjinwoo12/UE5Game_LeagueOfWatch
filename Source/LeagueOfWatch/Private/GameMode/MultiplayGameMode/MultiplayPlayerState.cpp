@@ -6,7 +6,8 @@
 
 void AMultiplayPlayerState::BeginPlay()
 {
-    if(HasAuthority())
+    
+    if(GetNetMode() != ENetMode::NM_Client)
     {
         //Server
         return;

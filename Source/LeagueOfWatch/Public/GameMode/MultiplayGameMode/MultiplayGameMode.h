@@ -9,22 +9,40 @@
 class AMultiplayPlayerController;
 
 /**
- * 
+ *
  */
 UCLASS()
 class LEAGUEOFWATCH_API AMultiplayGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(BlueprintReadOnly)
 	TArray<AMultiplayPlayerController*> ReadyPlayers;
 
+public:
 	AMultiplayGameMode();
 
-	void BeginPlay() override;
-	
-public:
-	virtual void OnPlayerReady(AMultiplayPlayerController* MultiplayPlayerController);
+	void PreLogin(const FString& Options,
+				  const FString& Address,
+				  const FUniqueNetIdRepl& UniqueId,
+				  FString& ErrorMessage) override;
 
-	virtual void OnAllPlayerReady();
+	void OnPlayerReady(AMultiplayPlayerController* MultiplayPlayerController);
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayerReady(AMultiplayPlayerController* MultiplayPlayerController);
 
+	void OnAllPlayersReady();
+	UFUNCTION(BlueprintNativeEvent)
+	void AllPlayersReady();
+
+	void Logout(AController* Exiting) override;
+
+	// CurrentPlayer Num >= MaxPlayer
+	// It follows variable "int MaxPlayer"
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsGameFullOfPlayers();
+
+	UFUNCTION(BlueprintPure)
+	bool IsAllPlayersReady();
 };

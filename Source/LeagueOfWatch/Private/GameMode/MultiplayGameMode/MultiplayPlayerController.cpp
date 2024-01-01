@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma warning(disable: 4458)
-
 #include "GameMode/MultiplayGameMode/MultiplayPlayerController.h"
 #include "GameMode/MultiplayGameMode/MultiplayGameMode.h"
 #include "GameMode/MultiplayGameMode/MultiplayGameState.h"
@@ -15,106 +13,111 @@ void AMultiplayPlayerController::BeginPlay()
     if (!HasAuthority())
         return;
 
-    UWorld* world = GetWorld();
-
-    MultiplayGameMode = Cast<AMultiplayGameMode>(world->GetAuthGameMode());
-	MultiplayGameState = world->GetGameState<AMultiplayGameState>();
-    MultiplayPlayerState = Cast<AMultiplayPlayerState>(PlayerState);
+	SyncedGameState = GetWorld()->GetGameState<AMultiplayGameState>();
+    SyncedPlayerState = Cast<AMultiplayPlayerState>(PlayerState);
 }
 	
 void AMultiplayPlayerController::OnGameStateBegin(AMultiplayGameState* MultiplayGameState)
 {
-    this->MultiplayGameState = MultiplayGameState;
+    SyncedGameState = MultiplayGameState;
+	GameStateBegin(SyncedGameState);
 
     TArray<AActor*> foundActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UMultiplayEventListener::StaticClass(), foundActors);
-
     for(AActor* actor : foundActors)
     {
-        IMultiplayEventListener* actorInterface = Cast<IMultiplayEventListener>(actor);
-        actorInterface->OnGameStateBegin(MultiplayGameState);
+        IMultiplayEventListener::Execute_GameStateBegin(actor, MultiplayGameState);
     }
 
-    //If all players are not ready, `ServerRPCReadyForServer()` will be called on `OnPlayerStateBegin`
-    if (PlayerStateNum != MultiplayGameState->PlayerArray.Num())
-		return;
+    //If all players are not ready, `ServerRPCPlayerReady()` will be called on `OnPlayerStateBegin`
+    if (SyncedGameState->PlayerSlotNum <= PlayerStateNum)
+    {
+        ServerRPCPlayerReady();
+    }
+}
 
-	ServerRPCReadyForServer();
+void AMultiplayPlayerController::GameStateBegin_Implementation(AMultiplayGameState* MultiplayGameState)
+{
 }
 
 void AMultiplayPlayerController::OnLocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState)
 {
-    this->MultiplayPlayerState = MultiplayPlayerState;
+	SyncedPlayerState = MultiplayPlayerState;
+	LocalPlayerStateBegin(MultiplayPlayerState);
 
     TArray<AActor*> foundActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UMultiplayEventListener::StaticClass(), foundActors);
-
     for (AActor* actor : foundActors)
     {
-        IMultiplayEventListener* actorInterface = Cast<IMultiplayEventListener>(actor);
-        actorInterface->OnLocalPlayerStateBegin(MultiplayPlayerState);
+        IMultiplayEventListener::Execute_LocalPlayerStateBegin(actor, MultiplayPlayerState);
     }
 
     OnPlayerStateBegin(MultiplayPlayerState);
 }
 
+void AMultiplayPlayerController::LocalPlayerStateBegin_Implementation(AMultiplayPlayerState* MultiplayPlayerState)
+{
+}
+
 void AMultiplayPlayerController::OnOtherPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState)
 {
-    this->MultiplayPlayerState = MultiplayPlayerState;
+    SyncedPlayerState = MultiplayPlayerState;
+	OtherPlayerStateBegin(MultiplayPlayerState);
 
     TArray<AActor*> foundActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UMultiplayEventListener::StaticClass(), foundActors);
-
     for (AActor* actor : foundActors)
     {
-        IMultiplayEventListener* actorInterface = Cast<IMultiplayEventListener>(actor);
-        actorInterface->OnPlayerStateBegin(MultiplayPlayerState);
+        IMultiplayEventListener::Execute_OtherPlayerStateBegin(actor, MultiplayPlayerState);
     }
 
     OnPlayerStateBegin(MultiplayPlayerState);
+}
+
+void AMultiplayPlayerController::OtherPlayerStateBegin_Implementation(AMultiplayPlayerState* MultiplayPlayerState)
+{
 }
 
 void AMultiplayPlayerController::OnPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState)
 {
     PlayerStateNum++;
 
-    // If GameState is invalid, `ServerRPCReadyForServer()` will be called on `OnGameStateBegin`
-    if (!IsValid(MultiplayGameState))
-		return;
+	PlayerStateBegin(MultiplayPlayerState);
 
-    if (PlayerStateNum != MultiplayGameState->PlayerArray.Num())
-		return;
-
-    ServerRPCReadyForServer();
+    // If GameState is invalid, `ServerRPCPlayerReady()` will be called on `OnGameStateBegin`
+    if (IsValid(SyncedGameState) && SyncedGameState->PlayerSlotNum <= PlayerStateNum)
+    {
+        ServerRPCPlayerReady();
+    }
 }
 
-void AMultiplayPlayerController::ServerRPCReadyForServer_Implementation()
+void AMultiplayPlayerController::PlayerStateBegin_Implementation(AMultiplayPlayerState* MultiplayPlayerState)
 {
-	MultiplayGameMode->OnPlayerReady(this);
+}
+
+void AMultiplayPlayerController::ServerRPCPlayerReady_Implementation()
+{
+	Cast<AMultiplayGameMode>(GetWorld()->GetAuthGameMode())->OnPlayerReady(this);
 }
 
 void AMultiplayPlayerController::OnAllPlayersReady()
 {
 	ClientRPCOnAllPlayersReady();
+}
+
+void AMultiplayPlayerController::ClientRPCOnAllPlayersReady_Implementation()
+{
+    AllPlayersReady();
 
     TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UMultiplayEventListener::StaticClass(), foundActors);
 
 	for (AActor* actor : foundActors)
 	{
-		IMultiplayEventListener* actorInterface = Cast<IMultiplayEventListener>(actor);
-		actorInterface->OnAllPlayersReady();
+        IMultiplayEventListener::Execute_AllPlayersReady(actor);
 	}
 }
 
-void AMultiplayPlayerController::ClientRPCOnAllPlayersReady_Implementation()
+void AMultiplayPlayerController::AllPlayersReady_Implementation()
 {
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UMultiplayEventListener::StaticClass(), foundActors);
-
-	for (AActor* actor : foundActors)
-	{
-		IMultiplayEventListener* actorInterface = Cast<IMultiplayEventListener>(actor);
-		actorInterface->OnAllPlayersReady();
-	}
-}                                        
+}

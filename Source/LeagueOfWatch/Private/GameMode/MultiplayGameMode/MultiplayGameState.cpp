@@ -6,7 +6,7 @@
 
 void AMultiplayGameState::BeginPlay()
 {
-    if(HasAuthority())
+    if(GetNetMode() != ENetMode::NM_Client)
     {
         //Server
         return;
@@ -17,5 +17,4 @@ void AMultiplayGameState::BeginPlay()
         return;
 
     localPlayerController->OnGameStateBegin(this);
-
 }

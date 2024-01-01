@@ -25,8 +25,15 @@ class LEAGUEOFWATCH_API IMultiplayEventListener
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-    virtual void OnGameStateBegin(AMultiplayGameState* MultiplayGameState) = 0;
-    virtual void OnLocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState) = 0;
-    virtual void OnPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState) = 0;
-	virtual void OnAllPlayersReady() = 0;
+	UFUNCTION(BlueprintNativeEvent)
+	void GameStateBegin(AMultiplayGameState* MultiplayGameState);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LocalPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OtherPlayerStateBegin(AMultiplayPlayerState* MultiplayPlayerState);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void AllPlayersReady();
 };
