@@ -13,7 +13,11 @@ public class LeagueOfWatch : ModuleRules
             "CoreUObject",
             "Engine",
             "InputCore",
-            "UMG"
+            "UMG",
+
+            /* Plugins */
+            "MultiplayLibrary",
+            /* ======= */
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
