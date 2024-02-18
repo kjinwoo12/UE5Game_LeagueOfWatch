@@ -17,8 +17,11 @@ public class LeagueOfWatch : ModuleRules
 				"PhysicsCore",
                 "UMG",
                 "Niagara",
-                "MultiplayLibrary",
                 "GameplayTags",
+
+                //MyPlugin
+                "MultiplayLibrary",
+                "EquipmentLibrary"
             }
         );
 

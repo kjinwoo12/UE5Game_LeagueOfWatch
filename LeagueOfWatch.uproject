@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{90C6D318-42AD-090C-6538-B48AF5729F22}",
+	"EngineAssociation": "5.3",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -11,6 +11,7 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"MultiplayLibrary",
+				"EquipmentLibrary",
 				"CoreUObject"
 			]
 		}
@@ -29,6 +30,10 @@
 		},
 		{
 			"Name": "AnimationLocomotionLibrary",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
 			"Enabled": true
 		}
 	]
