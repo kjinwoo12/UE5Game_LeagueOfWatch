@@ -12,7 +12,8 @@
 				"Engine",
 				"MultiplayLibrary",
 				"EquipmentLibrary",
-				"CoreUObject"
+				"CoreUObject",
+				"GameplayAbilities"
 			]
 		}
 	],
