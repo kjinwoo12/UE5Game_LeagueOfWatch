@@ -10,10 +10,12 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
+				"GameplayAbilities",
 				"MultiplayLibrary",
 				"EquipmentLibrary",
 				"CoreUObject",
-				"GameplayAbilities"
+				"ModularGameplay",
+				"PhysicsCore"
 			]
 		}
 	],
@@ -35,6 +37,10 @@
 		},
 		{
 			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "ModularGameplay",
 			"Enabled": true
 		}
 	]

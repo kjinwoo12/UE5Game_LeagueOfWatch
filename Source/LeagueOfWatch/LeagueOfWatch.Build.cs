@@ -18,6 +18,7 @@ public class LeagueOfWatch : ModuleRules
                 "UMG",
                 "Niagara",
                 "GameplayTags",
+                "AIModule",
 
                 //MyPlugin
                 "MultiplayLibrary",
