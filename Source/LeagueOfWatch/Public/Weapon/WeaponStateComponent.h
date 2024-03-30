@@ -35,10 +35,18 @@ UCLASS()
 class LEAGUEOFWATCH_API UWeaponStateComponent : public UEquipmentStateComponent
 {
 	GENERATED_BODY()
+protected:
+	/** Screen-space locations of our most recently instigated weapon damage (the confirmed hits) */
+	TArray<FScreenSpaceHitLocation> LastWeaponDamageScreenLocations;
 
+private:
 	TArray<FServerSideHitMarkerBatch> UnconfirmedServerSideHitMarkers;
+
+	double LastWeaponDamageInstigatedTime = 0.0;
 	
 public:
+	UFUNCTION(Client, Reliable)
+	void ClientConfirmTargetData(uint16 UniqueId, bool bSuccess, const TArray<uint8>& HitReplaces);
 
 	int GetUnconfirmedServerSideHitMarkerCount() const
 	{
@@ -50,4 +58,6 @@ public:
 
 protected:
 	bool ShouldShowHitAsSuccess(const FHitResult& Hit) const;
+
+	void ActuallyUpdateDamageInstigatedTime();
 };

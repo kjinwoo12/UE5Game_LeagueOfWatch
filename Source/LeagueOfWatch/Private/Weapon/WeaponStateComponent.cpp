@@ -11,6 +11,43 @@
 
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_Gameplay_Zone, "Gameplay.Zone");
 
+void UWeaponStateComponent::ClientConfirmTargetData_Implementation(uint16 UniqueId, bool bSuccess, const TArray<uint8>& HitReplaces)
+{
+	for(int i = 0; i < UnconfirmedServerSideHitMarkers.Num(); i++)
+	{
+		FServerSideHitMarkerBatch& Batch = UnconfirmedServerSideHitMarkers[i];
+		if(Batch.UniqueId == UniqueId)
+		{
+			if(bSuccess && (HitReplaces.Num() != Batch.Markers.Num()))
+			{
+				UWorld* World = GetWorld();
+				bool bFoundShowAsSuccessHit = false;
+
+				int32 HitLocationIndex = 0;
+				for(const FScreenSpaceHitLocation& Entry : Batch.Markers)
+				{
+					if(!HitReplaces.Contains(HitLocationIndex) && Entry.bShowAsSuccess)
+					{
+						// Only need to do this once
+						if(!bFoundShowAsSuccessHit)
+						{
+							ActuallyUpdateDamageInstigatedTime();
+						}
+
+						bFoundShowAsSuccessHit = true;
+
+						LastWeaponDamageScreenLocations.Add(Entry);
+					}
+					++HitLocationIndex;
+				}
+			}
+
+			UnconfirmedServerSideHitMarkers.RemoveAt(i);
+			break;
+		}
+	}
+}
+
 void UWeaponStateComponent::AddUnconfirmedServerSideHitMarkers(const FGameplayAbilityTargetDataHandle& InTargetData,
 															   const TArray<FHitResult>& FoundHits)
 {
@@ -57,4 +94,14 @@ bool UWeaponStateComponent::ShouldShowHitAsSuccess(const FHitResult& Hit) const
 	}
 
 	return false;
+}
+
+void UWeaponStateComponent::ActuallyUpdateDamageInstigatedTime()
+{
+	UWorld* World = GetWorld();
+	if(World->GetTimeSeconds() - LastWeaponDamageInstigatedTime > 0.1)
+	{
+		LastWeaponDamageScreenLocations.Reset();
+	}
+	LastWeaponDamageInstigatedTime = World->GetTimeSeconds();
 }

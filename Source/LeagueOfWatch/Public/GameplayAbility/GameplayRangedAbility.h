@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "GameplayAbilityWtihBpEvent.h"
 #include "GameplayRangedAbility.generated.h"
 
 
@@ -31,7 +31,7 @@ struct FRangedAbilityParam
  *
  */
 UCLASS()
-class LEAGUEOFWATCH_API UGameplayRangedAbility : public UGameplayAbility
+class LEAGUEOFWATCH_API UGameplayRangedAbility : public UGameplayAbilityWtihBpEvent
 {
 	GENERATED_BODY()
 public:
@@ -53,4 +53,10 @@ protected:
 							 FVector End) const;
 
 	FTransform GetCameraTransform(APawn* SourcePawn) const;
+
+	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle,
+								   FGameplayTag ApplicationTag);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnRangedWeaponTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetData);
 };

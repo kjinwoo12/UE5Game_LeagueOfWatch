@@ -2,7 +2,9 @@
 
 
 #include "GameplayAbility/GameplayRangedAbility.h"
+#include "AbilitySystemComponent.h"
 #include "Weapon/WeaponStateComponent.h"
+#include "Weapon/RangedWeaponInstance.h"
 
 void UGameplayRangedAbility::StartRangedWeaponTargeting()
 {
@@ -40,8 +42,7 @@ void UGameplayRangedAbility::StartRangedWeaponTargeting()
 		WeaponStateComponent->AddUnconfirmedServerSideHitMarkers(TargetDataHandle, FoundHits);
 	}
 
-	//#todo
-	//OnTargetDataReadyCallback(TargetDataHandle, FGameplayTag());
+	OnTargetDataReadyCallback(TargetDataHandle, FGameplayTag());
 }
 
 AController* UGameplayRangedAbility::GetControllerFromActorInfo() const
@@ -152,9 +153,81 @@ FTransform UGameplayRangedAbility::GetCameraTransform(APawn* SourcePawn) const
 		}
 		return FTransform(CameraRotator, CameraLocation);
 	}
-	else
+	return FTransform(FRotator(0, 0, 0), FVector(0, 0, 0));
+}
+
+void UGameplayRangedAbility::OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle,
+							   FGameplayTag ApplicationTag)
+{
+	UAbilitySystemComponent* MyAbilityComponent = CurrentActorInfo->AbilitySystemComponent.Get();
+	check(MyAbilityComponent);
+
+	if(const FGameplayAbilitySpec *AbilitySpec = MyAbilityComponent->FindAbilitySpecFromHandle(CurrentSpecHandle))
 	{
-		return FTransform(FRotator(0,0,0), FVector(0,0,0));
+		//FScopedPredictionWindow ScopedPrediction(MyAbilityComponent);
+
+		FGameplayAbilityTargetDataHandle LocalTargetDataHandle(MoveTemp(const_cast<FGameplayAbilityTargetDataHandle&>(TargetDataHandle)));
+		const bool bShouldNotifyServer = CurrentActorInfo->IsLocallyControlled() && !CurrentActorInfo->IsNetAuthority();
+		if(bShouldNotifyServer)
+		{
+			MyAbilityComponent->CallServerSetReplicatedTargetData(CurrentSpecHandle, 
+																  CurrentActivationInfo.GetActivationPredictionKey(), 
+																  LocalTargetDataHandle, 
+																  ApplicationTag, 
+																  MyAbilityComponent->ScopedPredictionKey);
+		}
+		
+		const bool bIsTargetDataValid = true;
+		bool bProjectileWeapon = false;
+
+#if WITH_SERVER_CODE
+		if(!bProjectileWeapon)
+		{
+			if(AController* Controller = GetControllerFromActorInfo())
+			{
+				if(Controller->GetLocalRole() == ROLE_Authority)
+				{
+					// Confirm hit markers
+					if(UWeaponStateComponent* WeaponStateComponent = Controller->FindComponentByClass<UWeaponStateComponent>())
+					{
+						TArray<uint8> HitReplaces;
+						for(uint8 i = 0; (i < LocalTargetDataHandle.Num()) && (i < 255); ++i)
+						{
+							if(FGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = static_cast<FGameplayAbilityTargetData_SingleTargetHit*>(LocalTargetDataHandle.Get(i)))
+							{
+								if(SingleTargetHit->bHitReplaced)
+								{
+									HitReplaces.Add(i);
+								}
+							}
+						}
+
+						WeaponStateComponent->ClientConfirmTargetData(LocalTargetDataHandle.UniqueId, bIsTargetDataValid, HitReplaces);
+					}
+
+				}
+			}
+		}
+#endif //WITH_SERVER_CODE
+
+
+		// See if we still have ammo
+		if(bIsTargetDataValid && CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+		{
+			// We fired the weapon, add spread
+			URangedWeaponInstance* WeaponData = Cast<URangedWeaponInstance>(AbilitySpec->SourceObject.Get());
+			check(WeaponData);
+			WeaponData->AddSpread();
+
+			// Let the blueprint do stuff like apply effects to the targets
+			OnRangedWeaponTargetDataReady(LocalTargetDataHandle);
+		}
+		else
+		{
+			K2_EndAbility();
+		}
 	}
 
+	// We've processed the data
+	MyAbilityComponent->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
 }
