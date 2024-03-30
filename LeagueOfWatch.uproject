@@ -15,7 +15,8 @@
 				"EquipmentLibrary",
 				"CoreUObject",
 				"ModularGameplay",
-				"PhysicsCore"
+				"PhysicsCore",
+				"EnhancedInput"
 			]
 		}
 	],
