@@ -1,9 +1,6 @@
-[submodule "Plugins/UE5_MultiplayLibrary"]
+[submodule "UE5_MultiplayLibrary"]
 	path = Plugins/MultiplayLibrary
-	url = git@github.com:kjinwoo12/UE5_MultiplayLibrary.git
-[submodule "UE5_EquipmentLibrary"]
+	url = https://github.com/kjinwoo12/UE5_MultiplayLibrary.git
+[submodule "EquipmentLibrary"]
 	path = Plugins/EquipmentLibrary
-	url = git@github.com:kjinwoo12/UE5_EquipmentLibrary.git
-[submodule "Plugins/EquipmentLibrary"]
-	path = Plugins/EquipmentLibrary
-	url = git@github.com:kjinwoo12/UE5_EquipmentLibrary.git
+	url = https://github.com/kjinwoo12/UE5_EquipmentLibrary.git
