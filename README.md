@@ -1,3 +1,8 @@
+# Deprecated
+Now we don't use this repo.
+
+Here is the new repo : [https://github.com/kjinwoo12/LeagueOfWatch](https://github.com/kjinwoo12/LeagueOfWatch)
+
 # UE5Game_LeagueOfWatch
 ## What is it?
 It is for studying UnrealEngine5. The goal is to make the game that a mixture of Overwatch and League Of Legend. The development log is being written on my [blog](https://duplicated.tistory.com/10).
